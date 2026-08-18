@@ -1,71 +1,91 @@
 # CachyOS-Settings
-This repository provides a collection of configuration files and scripts to optimize CachyOS installations. These settings are designed to enhance system performance, responsiveness, and resource management for technical users.
 
-## Core System Optimizations
+[![Built with Ona](https://ona.com/build-with-ona.svg)](https://app.ona.com/#https://github.com/Interested-Deving-1896/CachyOS-Settings) [![KDE Eco](https://img.shields.io/badge/KDE%20Eco-certified-brightgreen?logo=kde&logoColor=white&style=flat-square)](https://eco.kde.org/) [![Blue Angel](https://img.shields.io/badge/Blue%20Angel-DE--UZ%20215-0055a4?style=flat-square)](https://www.blauer-engel.de/en/certification/criteria) [![Energy](https://api.green-coding.io/v1/ci/badge/get?repo=Interested-Deving-1896%2FCachyOS-Settings&branch=main&workflow=eco-audit.yml)](https://metrics.green-coding.io/ci-index.html)
 
-### ⚙️ Udev Rules: Device Event Automation
-Udev rules automatically apply system configurations upon device detection or state changes.
-* **Audio Power Management**: Manages `snd-hda-intel` power saving to mitigate audio crackling, disabling it when AC-powered and re-enabling on battery.
-* **ZRAM Swap Optimization**: When ZRAM initializes, raises `vm.swappiness` to `150` and disables Zswap so anonymous pages are compressed instead of flushed from the page cache.
-* **Device Permissions**: Sets `rtc0` and `hpet` device group to "audio" for proper application access.
-* **SATA Performance**: Configures SATA host link power management to `max_performance`.
-* **I/O Scheduler Assignment**: Dynamically assigns I/O schedulers: `bfq` for HDDs, `mq-deadline` for SATA SSDs and eMMC, and `kyber` for NVMe SSDs.
-* **HDD Performance Tuning**: Applies `hdparm` settings (`-B 254 -S 0`) to rotational ATA disks.
-* **NVIDIA Runtime Power Management**: Enables/disables NVIDIA GPU runtime power management on driver bind/unbind events.
-* **CPU DMA Latency Access**: Sets permissions for the `cpu_dma_latency` device.
-* **Wireless Regulatory Domain**: Triggers setting of the wireless regulatory domain when a Wi-Fi device is added.
 
-### 🚀 Sysctl: Kernel Runtime Configuration
-Sysctl parameters modify kernel behavior at runtime for system-wide performance and stability.
-* **Memory & I/O Management**: Sets `vm.swappiness=100` at boot, along with `vm.vfs_cache_pressure`, `vm.dirty_bytes`, `vm.dirty_background_bytes`, and `vm.dirty_writeback_centisecs` for balanced memory usage and efficient disk I/O. Disables `vm.page-cluster`.
-* **System Stability & Security**: Disables `kernel.nmi_watchdog`, enables `kernel.unprivileged_userns_clone`, and restricts `kernel.kptr_restrict`.
-* **Logging & Network**: Configures `kernel.printk` to hide messages from console, increases `net.core.netdev_max_backlog`, and sets `fs.file-max`.
+<!-- AI:start:what-it-does -->
+_Description pending._
+<!-- AI:end:what-it-does -->
 
-### 🔧 Modprobe: Kernel Module Parameters
-Modprobe configurations control module loading and behavior for hardware-specific optimizations.
-* **AMD GPU Driver Enforcement**: Enables `amdgpu` SI/CIK support and disables the corresponding `radeon` support for GCN 1.0+ and 2.x GPUs.
-* **Watchdog Module Blacklist**: Prevents loading of Intel TCO and AMD SP5100 watchdog timers.
-* **NVIDIA Driver Optimizations**: Applies `NVreg_InitializeSystemMemoryAllocations=0` (disables memory clearing for GPU allocations), `NVreg_DynamicPowerManagement=0x02` (mobile GPU power saving), and `NVreg_EnableS0ixPowerManagement=1` (S0ix idle power saving on supported laptops).
+## Architecture
 
-### ⏱️ Systemd: Service & System Management
-Systemd unit and configuration files for streamlined boot, resource management, and service control.
-* **Journal Log Limits**: Sets `journald` size limit to 50MB.
-* **Service Timeouts**: Defines `DefaultTimeoutStartSec` (15s) and `DefaultTimeoutStopSec` (10s) for system and user services.
-* **File Descriptor Limits**: Increases `DefaultLimitNOFILE` for both system (2048:2097152) and user (1024:1048576) services.
-* **Time Synchronization**: Configures `systemd-timesyncd` with Cloudflare and Google NTP servers.
-* **ZRAM Generator**: Configures ZRAM with `zstd` compression, `ram` size, and `swap-priority=100`.
-* **PCI Latency Service**: Provides a oneshot unit to run the `pci-latency` script at boot (enable manually with `systemctl enable --now pci-latency.service`).
-* **Wireless Regulatory Domain**: Sets the regulatory domain from timezone or `/etc/iw-regdomain`, and re-applies it when `/etc/localtime` changes.
-* **User Service Resource Delegation**: Delegates CPU, cpuset, IO, memory, and pids to user services.
-* **RealtimeKit Logging**: Limits `rtkit-daemon` log verbosity to `info`.
+<!-- AI:start:architecture -->
+_Architecture documentation pending._
+<!-- AI:end:architecture -->
 
-### 🧹 Tmpfiles: Temporary File & THP Management
-Configurations for temporary file cleanup and Transparent Huge Page (THP) behavior.
-* **Coredump Retention**: Clears coredumps older than 3 days.
-* **THP Defragmentation**: Sets `transparent_hugepage/defrag` to `defer+madvise` for tcmalloc-using applications.
-* **THP Shrinker**: Configures `khugepaged/max_ptes_none` for Kernel 6.12+ to optimize THP memory usage.
+## Install
 
-### 🌐 Network & Modules
-* **NetworkManager DNS**: Uses `systemd-resolved` for DNS resolution.
-* **NTSync Module**: Loads the `ntsync` kernel module at boot.
+<!-- Add installation instructions here. This section is yours — the AI will not modify it. -->
 
-### 🔊 Audio & Debugging
-* **Realtime Audio Priority**: Grants the `@audio` group `rtprio 99` via `/etc/security/limits.d`.
-* **Debuginfod**: Points debug symbol lookup to `https://debuginfod.cachyos.org`.
+```bash
+git clone https://github.com/Interested-Deving-1896/CachyOS-Settings.git
+cd CachyOS-Settings
+```
 
-### 🖥️ Display & Login
-* **Touchpad Tapping**: Enables tapping for libinput touchpads under X11.
-* **GDM Login Logo**: Sets the CachyOS SVG as the GNOME login screen logo.
+## Usage
 
-### ⚡️ Utility Scripts
-Bash and Lua scripts for system diagnostics, optimization, and administration.
-* **`cachyos-bugreport.sh`**: Generates a comprehensive system bug report including hardware, logs, and installed packages, with an option to upload. (Requires root)
-* **`dlss-swapper`**: Forces latest NVIDIA DLSS presets (SR, RR, FG) and updates DLLs via NGX.
-* **`dlss-swapper-dll`**: Forces latest NVIDIA DLSS presets (SR, RR, FG) but skips NGX updater.
-* **`game-performance`**: Sets CPU power profile to "performance" via `powerprofilesctl` when launching applications, with screensaver inhibition by default. Set `GAME_PERFORMANCE_SCREENSAVER_ON=1` to skip inhibition.
-* **`kerver`**: Displays kernel version, x86_64 support, CPU config, and disk scheduler information.
-* **`paste-cachyos`**: Uploads file content or stdin to `https://paste.cachyos.org`.
-* **`pci-latency`**: Adjusts PCI latency timers for audio and other devices (sets sound cards to 80 cycles). (Requires root)
-* **`sbctl-batch-sign`**: Helps batch sign files for Secure Boot, excluding common Microsoft/Windows EFI, .mui, .dll, and grub files. (Requires root, incompatible with Limine)
-* **`topmem`**: A Lua script to display top processes by memory consumption (RSS, Swap, KSM profit), with sorting options. (Requires `lua-luv`)
-* **`zink-run`**: Wrapper to run OpenGL applications using the Zink Gallium driver.
+<!-- Add usage examples here. This section is yours — the AI will not modify it. -->
+
+## Configuration
+
+<!-- Document configuration options here. This section is yours — the AI will not modify it. -->
+
+## CI
+
+<!-- AI:start:ci -->
+_CI documentation pending._
+<!-- AI:end:ci -->
+
+## Mirror chain
+
+<!-- AI:start:mirror-chain -->
+This repo is maintained in [`Interested-Deving-1896/CachyOS-Settings`](https://github.com/Interested-Deving-1896/CachyOS-Settings) and mirrored through:
+
+```
+Interested-Deving-1896/CachyOS-Settings  ──►  OpenOS-Project-OSP/CachyOS-Settings  ──►  OpenOS-Project-Ecosystem-OOC/CachyOS-Settings
+```
+
+Changes flow downstream automatically via the hourly mirror chain in
+[`fork-sync-all`](https://github.com/Interested-Deving-1896/fork-sync-all).
+Direct commits to OSP or OOC are detected and opened as PRs back to `Interested-Deving-1896`.
+<!-- AI:end:mirror-chain -->
+
+## Contributors
+
+<!-- AI:start:contributors -->
+_Contributors pending._
+<!-- AI:end:contributors -->
+
+## Origins
+
+<!-- AI:start:origins -->
+_Original project — no upstream influences recorded._
+<!-- AI:end:origins -->
+
+## Resources
+
+<!-- AI:start:resources -->
+_No additional resource files found._
+<!-- AI:end:resources -->
+
+## Accessibility
+
+<!-- AI:start:accessibility -->
+This repo uses automated accessibility auditing via `check-accessibility.yml`.
+
+Checks include: CODEOWNERS ownership coverage, README screen-reader compatibility,
+WCAG 2.1 AA HTML compliance, audio overview (espeak-ng), and Braille output (liblouis).
+
+
+
+
+Run the [Check Accessibility](https://github.com/Interested-Deving-1896/CachyOS-Settings/actions/workflows/check-accessibility.yml)
+workflow to generate the first report and accessibility artifacts.
+See [DOCS/accessibility.md](https://github.com/Interested-Deving-1896/CachyOS-Settings/blob/main/DOCS/accessibility.md) for the full reference.
+<!-- AI:end:accessibility -->
+
+## License
+
+<!-- AI:start:license -->
+[GPL-3.0](https://github.com/Interested-Deving-1896/CachyOS-Settings/blob/master/LICENSE.md) © 2026 [Interested-Deving-1896](https://github.com/Interested-Deving-1896)
+<!-- AI:end:license -->
